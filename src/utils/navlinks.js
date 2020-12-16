@@ -16,14 +16,6 @@ export const navlinks = (
         <span className="menu-title">Maps</span>
       </NavLink>
     </li>
-
-    <li className="nav-item">
-      <NavLink exact className="nav-link" to="/dashboard/favorites">
-        <i className="mdi mdi-heart-outline"></i> &nbsp;
-        <span className="menu-title">Favorites</span>
-      </NavLink>
-    </li>
-
     <li className="nav-item">
       <NavLink exact className="nav-link" to="/dashboard/wishlist">
         <i className="mdi mdi-format-list-bulleted-type"></i> &nbsp;

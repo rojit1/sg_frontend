@@ -1,12 +1,25 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Switch, Link, Route, useRouteMatch } from 'react-router-dom';
 import { navlinks } from '../utils/navlinks';
 import PlaceList from '../components/places/PlaceList.js';
+import Place from '../components/places/Place.js';
 import Map from '../components/maps/Map';
 import WishListList from '../components/wishlist/WishListList';
-import FavoriteList from '../components/favorites/FavoriteList';
+import Profile from '../components/Profile';
+import requestInstance from '../requests';
 
 export default function Dashboard() {
+
+  const [userData, setUserData] = useState()
+
+  useEffect(() => {
+    requestInstance.get('auth/users/me/').then((res) => {
+      const data = res.data
+      setUserData(data)
+    }).catch(err => {
+      console.log(err)
+    })
+  }, [])
 
   const { path } = useRouteMatch();
 
@@ -30,10 +43,10 @@ export default function Dashboard() {
             <li className="nav-item nav-profile dropdown">
               <Link className="nav-link dropdown-toggle" to="#" data-toggle="dropdown" id="profileDropdown">
                 <img src={`${process.env.PUBLIC_URL}/dist/images/faces/face5.jpg`} alt="profile" />
-                <span className="nav-profile-name">Louis Barnett</span>
+                <span className="nav-profile-name">{userData ? (userData.firstname + ' ' + userData.lastname) : ''}</span>
               </Link>
               <div className="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="profileDropdown">
-                <Link className="dropdown-item" to='#'>
+                <Link className="dropdown-item" to={`${path}/profile`}>
                   <i className="mdi mdi-settings text-primary"></i>
                 Profile
               </Link>
@@ -56,18 +69,24 @@ export default function Dashboard() {
         </nav>
         <div className="main-panel">
           <div className="content-wrapper">
+            <div className="row">
+              <div className="col-md-12 grid-margin">
+                <div className="d-flex justify-content-between flex-wrap">
 
-            <Switch>
-              <Route exact path={`${path}/places`}> <PlaceList /> </Route>
-              <Route exact path={`${path}/maps`}> <Map /> </Route>
-              <Route exact path={`${path}/favorites`}> <FavoriteList /> </Route>
-              <Route exact path={`${path}/wishlist`}> <WishListList /> </Route>
-            </Switch>
-
+                  <Switch>
+                    <Route exact path={`${path}/places`}> <PlaceList /> </Route>
+                    <Route exact path={`${path}/places/:id`}> <Place /> </Route>
+                    <Route exact path={`${path}/maps`}> <Map /> </Route>
+                    <Route exact path={`${path}/wishlist`}> <WishListList /> </Route>
+                    <Route exact path={`${path}/profile`}> <Profile /> </Route>
+                  </Switch>
+                  
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
-
   </>
 }
