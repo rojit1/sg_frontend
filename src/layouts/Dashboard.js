@@ -1,25 +1,46 @@
-import React, { useState, useEffect } from 'react';
-import { Switch, Link, Route, useRouteMatch } from 'react-router-dom';
+import React, { useEffect,useContext } from 'react';
+import { Switch, Link, Route, useRouteMatch,useHistory } from 'react-router-dom';
 import { navlinks } from '../utils/navlinks';
 import PlaceList from '../components/places/PlaceList.js';
 import Place from '../components/places/Place.js';
-import Map from '../components/maps/Map';
+import Maps from '../components/maps/Maps';
 import WishListList from '../components/wishlist/WishListList';
 import Profile from '../components/Profile';
 import requestInstance from '../requests';
+import { AuthContext } from '../context/auth';
+import {useStateIfMounted} from 'use-state-if-mounted'
 
 export default function Dashboard() {
 
-  const [userData, setUserData] = useState()
+  const [userData, setUserData] = useStateIfMounted(null)
+  const history = useHistory()
+  const [, setAuthToken] = useContext(AuthContext)
+
 
   useEffect(() => {
-    requestInstance.get('auth/users/me/').then((res) => {
+     requestInstance.get('auth/users/me/').then((res) => {
       const data = res.data
+      localStorage.setItem('firstname',data.firstname)
+      localStorage.setItem('lastname',data.lastname)
+      localStorage.setItem('email',data.email)
       setUserData(data)
     }).catch(err => {
       console.log(err)
     })
   }, [])
+
+  const logoutUser = () =>{
+    requestInstance.post('auth/token/logout/').then(res=>{
+      if(res && res.status === 204){
+        localStorage.clear()
+        setAuthToken(null)
+        requestInstance.defaults.headers['Authorization'] = null;
+        history.push('/login')
+      }
+    }).catch(e=>{
+      history.push('/login')
+    })
+  }
 
   const { path } = useRouteMatch();
 
@@ -50,7 +71,7 @@ export default function Dashboard() {
                   <i className="mdi mdi-settings text-primary"></i>
                 Profile
               </Link>
-                <Link className="dropdown-item" to='#'>
+                <Link to="#" className="dropdown-item" onClick={logoutUser}>
                   <i className="mdi mdi-logout text-primary"></i>
                 Logout
               </Link>
@@ -76,7 +97,7 @@ export default function Dashboard() {
                   <Switch>
                     <Route exact path={`${path}/places`}> <PlaceList /> </Route>
                     <Route exact path={`${path}/places/:id`}> <Place /> </Route>
-                    <Route exact path={`${path}/maps`}> <Map /> </Route>
+                    <Route exact path={`${path}/maps`}> <Maps /> </Route>
                     <Route exact path={`${path}/wishlist`}> <WishListList /> </Route>
                     <Route exact path={`${path}/profile`}> <Profile /> </Route>
                   </Switch>

@@ -9,10 +9,10 @@ export default function Login() {
   const history = useHistory()
   const { register, handleSubmit } = useForm()
   const [authToken, setAuthToken] = useContext(AuthContext)
-  const [isError, setIsError] = useState();
+  const [isError, setIsError] = useState(null);
 
   if (authToken) {
-
+    history.push('/dashboard/places')
   }
 
   const onSubmit = (data) => {
@@ -22,10 +22,9 @@ export default function Login() {
       password: password
     }).then(res => {
       if (res && res.status === 200) {
-
         localStorage.setItem('auth_token', res.data.auth_token);
         requestInstance.defaults.headers['Authorization'] =
-          'Token ' + localStorage.getItem('access_token');
+          'Token ' + localStorage.getItem('auth_token');
         setAuthToken(res.data.auth_token)
         history.push('/')
       } else {

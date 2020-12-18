@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Link,useRouteMatch } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Link, useRouteMatch } from 'react-router-dom';
 import requestInstance from '../../requests';
 import { makeStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
@@ -9,22 +9,26 @@ import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import {toast } from 'react-toastify';
+import {toastContainer} from '../../utils/toastr'
+import 'react-toastify/dist/ReactToastify.css';
+import {useStateIfMounted} from 'use-state-if-mounted'
 
 const useStyles = makeStyles({
   root: {
     maxWidth: 500,
     margin: '20px',
-  },
-  linkname:{
-    textDecoration:'none',
   }
 });
 
 
 export default function PlaceList() {
+ 
   const classes = useStyles();
-  const {url} = useRouteMatch()
-  const [places, setPlaces] = useState([])
+  const { url } = useRouteMatch();
+  const [places, setPlaces] = useStateIfMounted([]);
+
   useEffect(() => {
     requestInstance.get('places/').then(res => {
       setPlaces(res.data.features)
@@ -33,46 +37,64 @@ export default function PlaceList() {
     })
   }, [])
 
-  const addToWishList = (place_id) =>{
-    requestInstance.post('wishlist/',{
-      place_id:place_id
-    }).then(res=>{
-      console.log(res)
+  const addToWishList = (place_id) => {
+    requestInstance.post('wishlist/', {
+      place_id: place_id
+    }).then(res => {
+      if(res && res.status && res.status === 201){
+        toast.success('Added to wishlist', {
+          position: "top-center",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          })
+      }
     })
   }
 
   return <div className="row">
+    {toastContainer}
     {
-      places.map((place,key) => {
+      places.length <= 0 ? (
+        <CircularProgress style={{ width: '100px', height: '100px', textAlign: 'center', position: 'fixed', top: '50%', left: '50%' }} />
+      ):''
+    }
+    {
+      places.map((place, key) => {
         return <div key={key}>
-          
-            <Card className={classes.root}>
-              <CardActionArea>
-                <CardMedia
-                  component="img"
-                  alt="Contemplative Reptile"
-                  height="180"
-                  image={place.properties.image ? place.properties.image : 'http://localhost:8000/media/places/pkr.jpeg'}
-                  title="Contemplative Reptile"
-                />
-                <CardContent>
-                  <Typography gutterBottom variant="h5" component="h2">
-                  <Link className="linkname" to={`${url}/${place.id}`}>{place.properties.name}</Link>, <small>{place.properties.subhead}</small>
-                  </Typography>
-                  <Typography variant="body2" color="textSecondary" component="p">
-                  {place.properties.description.length < 100?(place.properties.description):(place.properties.description.slice(0,100)+' ... Read More')}
-                  </Typography>
-                </CardContent>
-              </CardActionArea>
-              <CardActions>
-                <Button onClick={()=>addToWishList(place.id)} size="small" color="primary">
-                  Add to wishlist
-                </Button>
-              </CardActions>
-            </Card>
-          
+
+          <Card className={classes.root}>
+            <CardActionArea>
+              <CardMedia
+                component="img"
+                alt="Contemplative Reptile"
+                height="180"
+                image={place.properties.image ? place.properties.image : 'http://localhost:8000/media/places/pkr.jpeg'}
+                title={place.properties.name}
+              />
+              <CardContent>
+                <Typography gutterBottom variant="h5" component="h2">
+                  <Link to={`${url}/${place.id}`}>{place.properties.name}</Link>, <small>{place.properties.subhead}</small>
+                </Typography>
+                <Typography variant="body2" color="textSecondary" component="p">
+                  {place.properties.description.length < 100 ? (place.properties.description) : (place.properties.description.slice(0, 100) + ' ... Read More')}
+                </Typography>
+              </CardContent>
+            </CardActionArea>
+            <CardActions>
+              <Button onClick={() => addToWishList(place.id)} size="small" color="primary">
+                Add to wishlist
+          </Button>
+            </CardActions>
+          </Card>
+
         </div>
       })
     }
+
+
   </div>
 }
