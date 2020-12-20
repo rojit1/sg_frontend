@@ -6,6 +6,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 export default function Place() {
 
   const { id } = useParams();
+  const [loading, setLoading] = useState(false)
   const [place, setPlace] = useState({
     id: "",
     type: "",
@@ -14,15 +15,17 @@ export default function Place() {
 
   })
   useEffect(() => {
+    setLoading(true)
     requestInstance.get(`places/${id}/`).then(res => {
       setPlace(res.data)
+      setLoading(false)
     })
   }, [])
 
   return (
     <div className="container">
       {
-        place.id =="" ? (
+        loading? (
           <CircularProgress style={{zIndex:'10', width: '100px', height: '100px', textAlign: 'center', position: 'fixed', top: '50%', left: '50%' }} />
         ) : ''
       }

@@ -10,6 +10,7 @@ import CardMedia from '@material-ui/core/CardMedia';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import './WishListList.css';
 
 const useStyles = makeStyles({
   root: {
@@ -22,12 +23,14 @@ const useStyles = makeStyles({
 export default function WishListList() {
   const classes = useStyles();
   const [wishList, setWishList] = useState([]);
+  const [loading, setLoading] = useState(false)
 
 
   const getWishList = () => {
     try {
       requestInstance.get('wishlist/').then(res => {
         setWishList(res.data)
+        setLoading(false)
       }).catch(err => {
         console.log(err)
       })
@@ -37,29 +40,40 @@ export default function WishListList() {
   }
 
   useEffect(() => {
+    setLoading(true)
     getWishList()
   }, [])
 
   const removeFromWishList = (id) => {
     requestInstance.delete('wishlist/',
-    {data:{
-      place_id: id
-    }}).then(res=>{
-      if(res && res.status === 204){
-        getWishList()
-      }
-    }).catch(e=>{
-      console.log(e)
-    })
-    
+      {
+        data: {
+          place_id: id
+        }
+      }).then(res => {
+        if (res && res.status === 204) {
+          getWishList()
+        }
+      }).catch(e => {
+        console.log(e)
+      })
+
   }
 
   return <div className="row">
-    
+
+    {
+      loading ? (
+        <CircularProgress style={{ width: '100px', height: '100px', textAlign: 'center', position: 'fixed', top: '50%', left: '50%' }} />
+      ) : ''
+    }
+
     {
       wishList.length <= 0 ? (
-        <CircularProgress style={{ width: '100px', height: '100px', textAlign: 'center', position: 'fixed', top: '50%', left: '50%' }} />
-      ):''
+        <div className='no-content'>
+          <h3>No data available, Please add places to wishlist that you are intrested in</h3>
+        </div>
+      ) : ''
     }
     {
       wishList.map((p, key) => {
@@ -71,7 +85,7 @@ export default function WishListList() {
                 component="img"
                 alt="image"
                 height="180"
-                image={p.place.properties.image ? 'http://localhost:8000'+p.place.properties.image : 'http://localhost:8000/media/places/pkr.jpeg'}
+                image={p.place.properties.image ? 'http://localhost:8000' + p.place.properties.image : 'http://localhost:8000/media/places/pkr.jpeg'}
                 title={p.place.properties.name}
               />
               <CardContent>

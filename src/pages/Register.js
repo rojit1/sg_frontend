@@ -45,9 +45,20 @@ export default function Register() {
           progress: undefined,
           })
       }
+    }).catch(e =>{
+      if(e && e.response && e.response.status === 400){
+        toast.info('Please Check your mail and verify', {
+          position: "top-center",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          })
+          document.getElementById("registerForm").reset();
+      }
     })
-
-
   }
 
 
@@ -74,7 +85,7 @@ export default function Register() {
 
                   <h1 className="h4 text-gray-900 mb-4">Create an Account!</h1>
                 </div>
-                <form className="user" onSubmit={handleSubmit(onSubmit)}>
+                <form className="user" onSubmit={handleSubmit(onSubmit)} id="registerForm">
                   <div className="form-group row">
                     <div className="col-sm-6 mb-3 mb-sm-0">
                       <input type="text" className="form-control form-control-user" id="exampleFirstName"

@@ -1,19 +1,23 @@
-import React, { useEffect } from 'react';
-import ReactMapGL, { Marker } from 'react-map-gl';
+import React, { useEffect, useState } from 'react';
+import ReactMapGL, { Marker, Popup, NavigationControl } from 'react-map-gl';
 import { useStateIfMounted } from 'use-state-if-mounted'
 import requestInstance from '../../requests';
+import 'react-map-gl-directions/dist/mapbox-gl-directions.css'
+
 
 
 function Maps() {
   const [viewport, setViewport] = useStateIfMounted({
     width: 1400,
     height: 800,
-    latitude: 27.7151744,
-    longitude: 85.34097919999999,
-    zoom: 10
+    latitude: 0,
+    longitude: 0,
+    zoom: 9
   });
 
-  const [places,setPlaces] = useStateIfMounted([])
+  const [places, setPlaces] = useStateIfMounted([])
+  const [currentLocation, setCurrentLocation] = useStateIfMounted({ lat: 0, lng: 0 })
+  const [selectedPlace, setSelectedPlace] = useState(null)
 
 
   const getCurrentLocation = () => {
@@ -21,6 +25,8 @@ function Maps() {
       navigator.geolocation.getCurrentPosition(function (position) {
         viewport.latitude = position.coords.latitude
         viewport.longitude = position.coords.longitude
+        setCurrentLocation({ lat: position.coords.latitude, lng: position.coords.longitude })
+
       });
     } else {
       alert('Please enable geolocation location access')
@@ -36,9 +42,10 @@ function Maps() {
   }
 
   useEffect(() => {
-    // getCurrentLocation()
+    getCurrentLocation()
     getPlaceList()
   }, [])
+
 
 
   return (
@@ -50,15 +57,44 @@ function Maps() {
           setViewport(viewport)
         }}
       >
+
+        <div style={{ position: 'absolute', right: 0 }}>
+          <NavigationControl />
+        </div>
+
         {
-          places.map(place=>{
-            return <Marker latitude={place.geometry.coordinates[1]} longitude={place.geometry.coordinates[0]}>
-            <h1 className="mdi mdi-map-marker"></h1>
-          </Marker>
+          places.map(place => {
+            return <Marker key={place.id} latitude={place.geometry.coordinates[1]} longitude={place.geometry.coordinates[0]}>
+              <span onClick={(e) => {
+                e.preventDefault()
+                setSelectedPlace(place)
+              }} style={{ color: '#F37257', 'cursor': 'pointer', 'fontSize': '200%' }}><i className="mdi mdi-map-marker"></i></span>
+            </Marker>
           })
         }
+        <Marker latitude={currentLocation.lat} longitude={currentLocation.lng}>
+          <span onClick={(e) => {
+            e.preventDefault()
+            alert('You are here')
+          }} style={{ color: 'blue', 'cursor': 'pointer', 'fontSize': '200%' }}><i className="mdi mdi-map-marker"></i></span>
+        </Marker>
 
- 
+        {selectedPlace ? (
+          <Popup latitude={selectedPlace.geometry.coordinates[1]} longitude={selectedPlace.geometry.coordinates[0]}
+            onClose={() => {
+              setSelectedPlace(null)
+            }}
+          >
+            <div>
+              <h3>{selectedPlace.properties.name}</h3>
+              <img src={selectedPlace.properties.image} style={{ maxWidth: '150px' }} alt="image" />
+            </div>
+          </Popup>
+        )
+          : ''}
+
+
+
       </ReactMapGL>
 
     </div>
