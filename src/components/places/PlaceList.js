@@ -94,7 +94,8 @@ export default function PlaceList() {
           rowsMax={4}
           onChange={searchChange}
         />
-        <hr />
+        
+        
     <div className="row">
       {toastContainer}
       {

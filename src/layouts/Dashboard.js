@@ -9,6 +9,7 @@ import Profile from '../components/Profile';
 import requestInstance from '../requests';
 import { AuthContext } from '../context/auth';
 import {useStateIfMounted} from 'use-state-if-mounted'
+import NearestPlace from '../components/recommendation/NearestPlace';
 
 export default function Dashboard() {
 
@@ -100,6 +101,8 @@ export default function Dashboard() {
                     <Route exact path={`${path}/maps`}> <Maps /> </Route>
                     <Route exact path={`${path}/wishlist`}> <WishListList /> </Route>
                     <Route exact path={`${path}/profile`}> <Profile /> </Route>
+                    <Route exact path={`${path}/nearest`}> <NearestPlace /> </Route>
+
                   </Switch>
                   
                 </div>

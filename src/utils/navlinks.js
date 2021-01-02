@@ -22,6 +22,13 @@ export const navlinks = (
         <span className="menu-title">Wishlist</span>
       </NavLink>
     </li>
+
+    <li className="nav-item">
+      <NavLink exact className="nav-link" to="/dashboard/nearest">
+        <i className="mdi mdi-crosshairs-gps"></i> &nbsp;
+        <span className="menu-title">Nearest Places</span>
+      </NavLink>
+    </li>
   </ul >
 
 )
