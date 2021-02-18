@@ -11,8 +11,8 @@ export default function NearestPlace() {
 
         if ("geolocation" in navigator) {
             navigator.geolocation.getCurrentPosition(function (position) {
-                let lat = position.coords.latitude // 28.26689 
-                let lng = position.coords.longitude // 83.96851
+                let lat =  position.coords.latitude // 28.26689 
+                let lng =  position.coords.longitude // 83.96851
                 requestInstance.get('places/nearest/', { params: { lat: lat, lng: lng } }).then(res => {
                     setPlaces(res.data.features)
                     console.log(res.data.features)

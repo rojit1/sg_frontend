@@ -84,9 +84,7 @@ export default function Login() {
                         Login
                                         </button>
                       <hr />
-                      <Link to="#" className="btn btn-google btn-user btn-block">
-                        <i className="fab fa-google fa-fw"></i> Login with Google
-                                        </Link>
+                      
                     </form>
                     <hr />
                     <div className="text-center">
